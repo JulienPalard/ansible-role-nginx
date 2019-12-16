@@ -1,0 +1,43 @@
+---
+
+- block:
+  - name: User
+    user:
+      system: yes
+      name: "{{ nginx_owner }}"
+    when: nginx_owner is defined
+
+  - name: .ssh directory
+    file:
+      path: "~{{ nginx_owner }}/.ssh"
+      state: directory
+      owner: "{{ nginx_owner }}"
+      mode: 0755
+    when: nginx_owner is defined
+
+  - name: Deploy key
+    blockinfile:
+      create: yes
+      owner: "{{ nginx_owner }}"
+      mode: 0644
+      path: "~{{ nginx_owner }}/.ssh/authorized_keys"
+      marker: "<!-- {mark} ANSIBLE MANAGED BLOCK: Deploy key for {{ nginx_domain }} -->"
+      block: "{{ nginx_public_deploy_key }}"
+    when: nginx_owner is defined and nginx_public_deploy_key is defined
+
+  - name: Configure nginx
+    copy:
+      content: "{{ nginx_conf }}"
+      dest: "/etc/nginx/conf.d/{{ nginx_domain }}.conf"
+    notify: reload nginx
+
+  - name: WWW directory
+    file:
+      path: "{{ nginx_path }}"
+      state: directory
+      owner: "{{ nginx_owner }}"
+      group: "{{ nginx_owner }}"
+      mode: 0755
+    when: nginx_owner is defined and nginx_path is defined
+
+  tags: [nginx]

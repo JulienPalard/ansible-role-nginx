@@ -1,0 +1,18 @@
+---
+
+dependencies:
+  - role: julienpalard.nginx_letsencrypt
+    version: master
+    vars:
+      letsencrypt_certificates: "{{ [nginx_certificates] }}"
+
+galaxy_info:
+  role_name: nginx
+  author: Julien Palard
+  description: Minimalist setup for a static website on nginx with letsencrypt certificates.
+  issue_tracker_url: https://github.com/JulienPalard/ansible-role-nginx
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+  galaxy_tags: [letsencrypt, web, https, nginx, networking, system, certificates, certbot]
