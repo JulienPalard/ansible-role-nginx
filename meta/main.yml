@@ -1,12 +1,5 @@
 ---
 
-dependencies:
-  - role: julienpalard.nginx_letsencrypt
-    version: master
-    vars:
-      letsencrypt_certificates: "{{ [nginx_certificates] }}"
-    when: nginx_certificates is defined
-
 galaxy_info:
   role_name: nginx
   author: Julien Palard

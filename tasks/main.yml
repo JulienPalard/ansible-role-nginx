@@ -1,6 +1,9 @@
 ---
 
 - block:
+  - include_tasks: nginx-letsencrypt.yml
+    when: nginx_certificates is defined
+
   - name: User
     user:
       system: yes

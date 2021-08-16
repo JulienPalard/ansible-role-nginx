@@ -1,0 +1,35 @@
+---
+
+- name: Install nginx and certbot for letsencrypt
+  package:
+    state: present
+    name:
+      - nginx
+      - certbot
+      - ca-certificates
+      - python-certbot-nginx
+
+- name: Create SSL dhparam
+  get_url:
+    url: https://ssl-config.mozilla.org/ffdhe2048.txt
+    dest: /etc/ssl/certs/dhparam.pem
+    mode: 0644
+
+# This is usefull in case nginx already has an include to this file,
+# to avoid nginx to fail parsing its configuration when certbot
+# modifies it.
+- name: Create letsencrypt snippets files
+  file:
+    path: '/etc/nginx/snippets/{{ snippet_prefix }}{{ nginx_certificates[0] }}.conf'
+    state: file
+    mode: 0644
+
+- name: Create a new certificate
+  shell: 'certbot certonly --cert-name {{ nginx_certificates[0] }} -n --agree-tos -d {{ nginx_certificates | join(",") }} -m {{ letsencrypt_email }} --nginx --rsa-key-size {{ rsa_key_size }}'
+  register: certbot
+  changed_when: '"Cert not yet due for renewal" not in certbot.stderr'
+
+- name: Create letsencrypt snippets
+  template:
+    src: letsencrypt.conf.j2
+    dest: '/etc/nginx/snippets/{{ snippet_prefix }}{{ nginx_certificates[0] }}.conf'
