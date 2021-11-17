@@ -8,6 +8,16 @@
       - certbot
       - ca-certificates
       - python-certbot-nginx
+  when: ansible_lsb.major_release|int <= 10
+
+- name: Install nginx and certbot for letsencrypt
+  package:
+    state: present
+    name:
+      - nginx
+      - certbot
+      - ca-certificates
+  when: ansible_lsb.major_release|int > 10
 
 - name: Create SSL dhparam
   get_url:
