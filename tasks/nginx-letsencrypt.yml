@@ -31,7 +31,7 @@
 - name: Create letsencrypt snippets files
   file:
     path: '/etc/nginx/snippets/{{ snippet_prefix }}{{ nginx_certificates[0] }}.conf'
-    state: file
+    state: touch
     mode: 0644
 
 - name: Create a new certificate
