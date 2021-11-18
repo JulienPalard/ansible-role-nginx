@@ -1,24 +1,37 @@
 ---
 
-- name: Install nginx and certbot for letsencrypt
-  package:
-    state: present
+- name: Prepare certbot venv
+  pip:
+    chdir: /root/
+    virtualenv_command: /usr/bin/python3 -m venv
+    virtualenv: /root/certbot-venv/
     name:
-      - nginx
-      - certbot
-      - ca-certificates
-      - python-certbot-nginx
-  when: ansible_lsb.major_release|int <= 10
+      - "pip>=21.0.1"
+      - "setuptools>=53.0.0"
+      - "wheel>=0.36.2"
 
-- name: Install nginx and certbot for letsencrypt
-  package:
-    state: present
+- name: Install certbot in venv
+  pip:
+    chdir: /root/
+    virtualenv_command: /usr/bin/python3 -m venv
+    virtualenv: /root/certbot-venv/
     name:
-      - nginx
       - certbot
-      - ca-certificates
+
+- name: Setup renewal cron
+  cron:
+    name: certbot
+    minute: "55"
+    hour: "8"
+    job: '/root/certbot-venv/bin/certbot -q renew'
+
+- name: Ensure certbot is not installed from packages
+  package:
+    state: absent
+    name:
+      - certbot
+      - python-certbot-nginx
       - python3-certbot-nginx
-  when: ansible_lsb.major_release|int > 10
 
 - name: Create SSL dhparam
   get_url:
@@ -26,10 +39,10 @@
     dest: /etc/ssl/certs/dhparam.pem
     mode: 0644
 
-# This is usefull in case nginx already has an include to this file,
+# This is only usefull in case nginx already has an include to this file,
 # to avoid nginx to fail parsing its configuration when certbot
 # modifies it.
-- name: Create letsencrypt snippets files
+- name: Touch letsencrypt snippets files
   file:
     path: '/etc/nginx/snippets/{{ snippet_prefix }}{{ nginx_certificates[0] }}.conf'
     state: touch
