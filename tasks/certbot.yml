@@ -49,7 +49,7 @@
     mode: 0644
 
 - name: Create a new certificate
-  shell: 'certbot certonly --cert-name {{ nginx_certificates[0] }} -n --agree-tos -d {{ nginx_certificates | join(",") }} -m {{ letsencrypt_email }} --nginx --rsa-key-size {{ rsa_key_size }}'
+  shell: '/root/certbot-venv/bin/certbot certonly --cert-name {{ nginx_certificates[0] }} -n --agree-tos -d {{ nginx_certificates | join(",") }} -m {{ letsencrypt_email }} --nginx --rsa-key-size {{ rsa_key_size }}'
   register: certbot
   changed_when: '"Cert not yet due for renewal" not in certbot.stderr'
 
