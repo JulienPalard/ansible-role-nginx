@@ -17,6 +17,7 @@
     virtualenv: /root/certbot-venv/
     name:
       - certbot
+      - certbot-nginx
 
 - name: Setup renewal cron
   cron:
